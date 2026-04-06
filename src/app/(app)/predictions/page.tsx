@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
   Card,
@@ -24,25 +23,13 @@ interface PredictionSection {
 }
 
 export default function PredictionsPage() {
-  // In a real app, these counts would come from the server/DB.
-  // Using placeholder counts for now.
-  const [counts, setCounts] = useState({
+  // TODO: Replace with actual data fetching from getMyPredictions(), etc.
+  const counts = {
     groupStage: 0,
     knockout: 0,
     advancement: 0,
     bonus: 0,
-  });
-
-  // Mock: simulate loading saved prediction counts
-  useEffect(() => {
-    // TODO: Replace with actual data fetching from getMyPredictions(), etc.
-    setCounts({
-      groupStage: 0,
-      knockout: 0,
-      advancement: 0,
-      bonus: 0,
-    });
-  }, []);
+  };
 
   const sections: PredictionSection[] = [
     {

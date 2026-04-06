@@ -17,7 +17,7 @@ async function requireAdmin() {
 
   if (!user) redirect("/login");
 
-  const { data: participant } = await (supabase as any)
+  const { data: participant } = await supabase
     .from("participants")
     .select("*")
     .eq("user_id", user.id)
@@ -62,8 +62,7 @@ export async function saveMatchResult(
 
   // Determine winning team for knockout matches
   if (homeScore !== awayScore) {
-    // Clear winner from 90min
-    const { data: match } = await (supabase as any)
+    const { data: match } = await supabase
       .from("matches")
       .select("home_team_id, away_team_id")
       .eq("id", matchId)
@@ -75,7 +74,7 @@ export async function saveMatchResult(
     }
   }
 
-  const { error } = await (supabase as any)
+  const { error } = await supabase
     .from("matches")
     .update(updateData)
     .eq("id", matchId);
@@ -95,7 +94,7 @@ export async function saveMatchResult(
 export async function markParticipantPaid(participantId: string) {
   const { supabase } = await requireAdmin();
 
-  const { error } = await (supabase as any)
+  const { error } = await supabase
     .from("participants")
     .update({
       is_paid: true,
@@ -117,7 +116,7 @@ export async function markParticipantPaid(participantId: string) {
 export async function updateBonusAnswer(questionId: string, answer: string) {
   const { supabase } = await requireAdmin();
 
-  const { error } = await (supabase as any)
+  const { error } = await supabase
     .from("bonus_questions")
     .update({ current_answer: answer })
     .eq("id", questionId);
@@ -133,7 +132,7 @@ export async function updateBonusAnswer(questionId: string, answer: string) {
 export async function finalizeBonusQuestion(questionId: string) {
   const { supabase } = await requireAdmin();
 
-  const { error } = await (supabase as any)
+  const { error } = await supabase
     .from("bonus_questions")
     .update({ is_finalized: true })
     .eq("id", questionId);
@@ -152,7 +151,7 @@ export async function finalizeBonusQuestion(questionId: string) {
 export async function updateTournamentPhase(phase: TournamentPhase) {
   const { supabase } = await requireAdmin();
 
-  const { error } = await (supabase as any)
+  const { error } = await supabase
     .from("tournaments")
     .update({ current_phase: phase })
     .eq("slug", "wc2026");
@@ -172,7 +171,7 @@ export async function updateTournamentDeadlines(
 ) {
   const { supabase } = await requireAdmin();
 
-  const { error } = await (supabase as any)
+  const { error } = await supabase
     .from("tournaments")
     .update({
       group_stage_deadline: groupDeadline,
