@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import type { Database } from "@/lib/types/database";
+import { TOURNAMENT_ID } from "@/lib/utils/constants";
 
 export async function login(formData: FormData) {
   const supabase = await createClient();
@@ -70,7 +70,7 @@ export async function register(formData: FormData) {
   if (data.user) {
     const participantData = {
       user_id: data.user.id,
-      tournament_id: "1dc5aa7b-f34e-42aa-aa28-edff19a4daba",
+      tournament_id: TOURNAMENT_ID,
       display_name: displayName,
       email: email,
       phone: null,
@@ -81,9 +81,8 @@ export async function register(formData: FormData) {
       is_admin: false,
     };
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error: insertError } = await (supabase
-      .from("participants") as any)
+    const { error: insertError } = await supabase
+      .from("participants")
       .insert(participantData);
 
     if (insertError) {

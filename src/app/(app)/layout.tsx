@@ -59,19 +59,9 @@ const adminNavItems = [
 
 const mobileNavItems = mainNavItems.slice(0, 4);
 
-const pageTitles: Record<string, string> = {
-  "/dashboard": "לוח בקרה",
-  "/predictions": "ניחושים",
-  "/leaderboard": "טבלת דירוג",
-  "/matches": "משחקים",
-  "/groups": "בתים",
-  "/statistics": "סטטיסטיקות",
-  "/rules": "חוקי הטורניר",
-  "/admin/results": "הזנת תוצאות",
-  "/admin/participants": "משתתפים",
-  "/admin/bonus": "שאלות בונוס",
-  "/admin/tournament": "ניהול טורניר",
-};
+const pageTitles: Record<string, string> = Object.fromEntries(
+  [...mainNavItems, ...adminNavItems].map(({ href, label }) => [href, label])
+);
 
 // TODO: Replace with real admin check from user session
 const isAdmin = true;

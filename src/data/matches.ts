@@ -16,7 +16,7 @@ export interface MatchSeed {
 }
 
 /**
- * Generate all 48 group stage matches.
+ * Generate all 72 group stage matches (12 groups × 6 matches each).
  * In a group of 4 teams (1,2,3,4), the matchups are:
  * Round 1: 1v2, 3v4
  * Round 2: 1v3, 2v4
@@ -27,43 +27,42 @@ function generateGroupMatches(): MatchSeed[] {
   const matches: MatchSeed[] = [];
   let matchNum = 1;
 
-  // Spread matches across days 0-14 (June 11 - June 25)
-  // 3-4 matches per day
-  const times = ["16:00", "19:00", "22:00", "13:00"];
+  const times = ["13:00", "16:00", "19:00", "22:00"];
+
+  // Team positions in group: 0=1st seed, 1=2nd, 2=3rd, 3=4th
+  const matchups = [
+    [[0, 1], [2, 3]], // Round 1
+    [[0, 2], [1, 3]], // Round 2
+    [[0, 3], [1, 2]], // Round 3
+  ];
 
   for (let round = 0; round < 3; round++) {
     for (let g = 0; g < groups.length; g++) {
       const group = groups[g];
       const dayOffset = round * 5 + Math.floor(g / 3);
-      const timeIdx = g % 4;
 
-      // Team positions in group: 0=1st seed, 1=2nd, 2=3rd, 3=4th
-      const matchups = [
-        [[0, 1], [2, 3]], // Round 1
-        [[0, 2], [1, 3]], // Round 2
-        [[0, 3], [1, 2]], // Round 3
-      ];
+      for (let m = 0; m < 2; m++) {
+        const [home, away] = matchups[round][m];
+        const timeIdx = (g * 2 + m) % times.length;
 
-      const [home, away] = matchups[round][g % 2 === 0 ? 0 : 1];
-
-      matches.push({
-        match_number: matchNum++,
-        stage: "group",
-        group_letter: group,
-        home_team_code: `${group}${home + 1}`,
-        away_team_code: `${group}${away + 1}`,
-        home_placeholder: null,
-        away_placeholder: null,
-        venue: "TBD",
-        city: "TBD",
-        day_offset: dayOffset,
-        kickoff_hour: times[timeIdx],
-      });
+        matches.push({
+          match_number: matchNum++,
+          stage: "group",
+          group_letter: group,
+          home_team_code: `${group}${home + 1}`,
+          away_team_code: `${group}${away + 1}`,
+          home_placeholder: null,
+          away_placeholder: null,
+          venue: "TBD",
+          city: "TBD",
+          day_offset: dayOffset,
+          kickoff_hour: times[timeIdx],
+        });
+      }
     }
   }
 
-  // Ensure we have exactly 48 group matches (may need adjustment)
-  return matches.slice(0, 48);
+  return matches;
 }
 
 /**
@@ -186,6 +185,6 @@ export function generateAllMatches(): MatchSeed[] {
 /**
  * Total expected matches
  */
-export const TOTAL_MATCHES = 104;
-export const GROUP_MATCHES = 48;
-export const KNOCKOUT_MATCHES = 56;
+export const GROUP_MATCHES = 72;
+export const KNOCKOUT_MATCHES = 32;
+export const TOTAL_MATCHES = GROUP_MATCHES + KNOCKOUT_MATCHES;

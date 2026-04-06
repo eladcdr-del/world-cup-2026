@@ -3,9 +3,6 @@
 import { createClient } from "@/lib/supabase/server";
 import type {
   Participant,
-  MatchPrediction,
-  AdvancementPrediction,
-  BonusPrediction,
   MatchPredictionInsert,
   AdvancementPredictionInsert,
   BonusPredictionInsert,
@@ -37,7 +34,7 @@ async function checkDeadline(deadlineField: "group_stage_deadline" | "knockout_d
 
   if (!tournament) return "הטורניר לא נמצא";
 
-  const deadline = (tournament as Record<string, string | null>)[deadlineField];
+  const deadline = tournament[deadlineField];
   if (deadline && new Date(deadline) < new Date()) {
     return "הזמן להגשת ניחושים עבר";
   }
@@ -52,10 +49,11 @@ export async function savePrediction(
   awayScore: number
 ): Promise<ActionResult> {
   try {
-    const participant = await getParticipant();
+    const [participant, deadlineError] = await Promise.all([
+      getParticipant(),
+      checkDeadline("group_stage_deadline"),
+    ]);
     if (!participant) return { error: "יש להתחבר כדי לשמור ניחושים" };
-
-    const deadlineError = await checkDeadline("group_stage_deadline");
     if (deadlineError) return { error: deadlineError };
 
     const supabase = await createClient();
@@ -69,8 +67,7 @@ export async function savePrediction(
 
     const { error } = await supabase
       .from("match_predictions")
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .upsert(insertData as any, { onConflict: "participant_id,match_id" });
+      .upsert(insertData, { onConflict: "participant_id,match_id" });
 
     if (error) {
       console.error("Error saving prediction:", error);
@@ -84,27 +81,6 @@ export async function savePrediction(
   }
 }
 
-export async function getMyPredictions(): Promise<{
-  data: MatchPrediction[];
-  error: string | null;
-}> {
-  try {
-    const participant = await getParticipant();
-    if (!participant) return { data: [], error: null };
-
-    const supabase = await createClient();
-    const { data, error } = await supabase
-      .from("match_predictions")
-      .select("*")
-      .eq("participant_id", participant.id);
-
-    if (error) return { data: [], error: "שגיאה בטעינת הניחושים" };
-    return { data: data ?? [], error: null };
-  } catch {
-    return { data: [], error: "שגיאה לא צפויה" };
-  }
-}
-
 // ─── Advancement Predictions ────────────────────────────────
 
 export async function saveAdvancementPrediction(
@@ -113,15 +89,14 @@ export async function saveAdvancementPrediction(
   isTournamentWinner: boolean = false
 ): Promise<ActionResult> {
   try {
-    const participant = await getParticipant();
+    const [participant, deadlineError] = await Promise.all([
+      getParticipant(),
+      checkDeadline("group_stage_deadline"),
+    ]);
     if (!participant) return { error: "יש להתחבר כדי לשמור ניחושים" };
-
-    const deadlineError = await checkDeadline("group_stage_deadline");
     if (deadlineError) return { error: deadlineError };
 
     const supabase = await createClient();
-
-    // Tournament winner is handled via the is_tournament_winner field in the upsert
 
     const insertData: AdvancementPredictionInsert = {
       participant_id: participant.id,
@@ -132,8 +107,7 @@ export async function saveAdvancementPrediction(
 
     const { error } = await supabase
       .from("advancement_predictions")
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .upsert(insertData as any, { onConflict: "participant_id,team_id,predicted_stage" });
+      .upsert(insertData, { onConflict: "participant_id,team_id,predicted_stage" });
 
     if (error) {
       console.error("Error saving advancement prediction:", error);
@@ -166,27 +140,6 @@ export async function removeAdvancementPrediction(teamId: string): Promise<Actio
   }
 }
 
-export async function getMyAdvancementPredictions(): Promise<{
-  data: AdvancementPrediction[];
-  error: string | null;
-}> {
-  try {
-    const participant = await getParticipant();
-    if (!participant) return { data: [], error: null };
-
-    const supabase = await createClient();
-    const { data, error } = await supabase
-      .from("advancement_predictions")
-      .select("*")
-      .eq("participant_id", participant.id);
-
-    if (error) return { data: [], error: "שגיאה בטעינת הניחושים" };
-    return { data: data ?? [], error: null };
-  } catch {
-    return { data: [], error: "שגיאה לא צפויה" };
-  }
-}
-
 // ─── Bonus Predictions ──────────────────────────────────────
 
 export async function saveBonusPrediction(
@@ -194,10 +147,11 @@ export async function saveBonusPrediction(
   answer: string
 ): Promise<ActionResult> {
   try {
-    const participant = await getParticipant();
+    const [participant, deadlineError] = await Promise.all([
+      getParticipant(),
+      checkDeadline("group_stage_deadline"),
+    ]);
     if (!participant) return { error: "יש להתחבר כדי לשמור ניחושים" };
-
-    const deadlineError = await checkDeadline("group_stage_deadline");
     if (deadlineError) return { error: deadlineError };
 
     const supabase = await createClient();
@@ -210,8 +164,7 @@ export async function saveBonusPrediction(
 
     const { error } = await supabase
       .from("bonus_predictions")
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .upsert(insertData as any, { onConflict: "participant_id,bonus_question_id" });
+      .upsert(insertData, { onConflict: "participant_id,bonus_question_id" });
 
     if (error) {
       console.error("Error saving bonus prediction:", error);
@@ -222,26 +175,5 @@ export async function saveBonusPrediction(
   } catch (err) {
     console.error("Unexpected error:", err);
     return { error: "שגיאה לא צפויה" };
-  }
-}
-
-export async function getMyBonusPredictions(): Promise<{
-  data: BonusPrediction[];
-  error: string | null;
-}> {
-  try {
-    const participant = await getParticipant();
-    if (!participant) return { data: [], error: null };
-
-    const supabase = await createClient();
-    const { data, error } = await supabase
-      .from("bonus_predictions")
-      .select("*")
-      .eq("participant_id", participant.id);
-
-    if (error) return { data: [], error: "שגיאה בטעינת הניחושים" };
-    return { data: data ?? [], error: null };
-  } catch {
-    return { data: [], error: "שגיאה לא צפויה" };
   }
 }
