@@ -1,4 +1,4 @@
-export const TOURNAMENT_ID = "wc2026"; // Will be replaced with actual UUID from DB
+export const TOURNAMENT_ID = "1dc5aa7b-f34e-42aa-aa28-edff19a4daba";
 
 export const STAGE_LABELS: Record<string, string> = {
   group: "שלב הבתים",

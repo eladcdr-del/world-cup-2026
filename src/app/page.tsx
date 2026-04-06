@@ -1,8 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { buttonVariants } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 
 export default async function HomePage() {
   const supabase = await createClient();
@@ -34,16 +32,13 @@ export default async function HomePage() {
         <div className="mt-4 flex gap-4">
           <Link
             href="/login"
-            className={cn(buttonVariants({ size: "lg" }), "min-w-28")}
+            className="inline-flex h-11 items-center justify-center rounded-md bg-primary px-8 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary/90 min-w-28"
           >
             {"התחברות"}
           </Link>
           <Link
             href="/register"
-            className={cn(
-              buttonVariants({ size: "lg", variant: "outline" }),
-              "min-w-28 border-white/20 bg-white/10 text-white hover:bg-white/20 hover:text-white"
-            )}
+            className="inline-flex h-11 items-center justify-center rounded-md border border-white/20 bg-white/10 px-8 text-sm font-medium text-white shadow-sm transition-colors hover:bg-white/20 min-w-28"
           >
             {"הרשמה"}
           </Link>

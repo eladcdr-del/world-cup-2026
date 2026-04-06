@@ -70,7 +70,7 @@ export async function register(formData: FormData) {
   if (data.user) {
     const participantData = {
       user_id: data.user.id,
-      tournament_id: "00000000-0000-0000-0000-000000000001",
+      tournament_id: "1dc5aa7b-f34e-42aa-aa28-edff19a4daba",
       display_name: displayName,
       email: email,
       phone: null,
